@@ -270,20 +270,18 @@ function wait_for_docker_ipv6_addr {
 }
 
 function wait_for_running_pod {
-  set +x
+  set -x
   pod=$1
   namespace=${2:-default}
   echo "Waiting for ${pod} pod to be Running..."
   wait_specified_time_test "test \"\$(kubectl get pods -n ${namespace} -o wide | grep ${pod} | grep -c Running)\" -eq \"1\"" "5"
-  set -x
 }
 
 function wait_for_no_pods {
-  set +x
+  set -x
   namespace=${1:-default}
   echo "Waiting for no pods to be Running in namespace ${namespace}"
   wait_specified_time_test "test \"\$(kubectl get pods -n ${namespace} -o wide 2>&1 | grep -c 'No resources found')\" -eq \"1\"" "5"
-  set -x
 }
 
 function wait_for_n_running_pods {
@@ -492,7 +490,7 @@ function wait_for_api_server_ready {
 }
 
 function wait_for_service_endpoints_ready {
-  set +x
+  set -x
   check_num_params "$#" "3"
   local namespace="${1}"
   local name="${2}"
@@ -500,7 +498,6 @@ function wait_for_service_endpoints_ready {
 
   echo "Waiting for ${name} service endpoints to be ready"
   wait_specified_time_test "test \"\$(kubectl get endpoints -n ${namespace} ${name} | grep -c \":${port}\")\" -eq \"1\"" "5"
-  set -x
 }
 
 function k8s_apply_policy {
@@ -739,7 +736,7 @@ function wait_for_desired_state {
 #   None
 #######################################
 function wait_specified_time_test {
-  set +x
+  set -x
   local CMD="$1"
   local MAX_MINS="$2"
 
@@ -754,7 +751,6 @@ function wait_specified_time_test {
   done
   if [[ "${iter}" -ge $((${MAX_MINS}*60/$sleep_time)) ]]; then
     echo "Timeout ${MAX_MINS} minutes exceeded for command \"$CMD\", Exiting with failure."
-    set -x
     exit 1
   fi
 }
