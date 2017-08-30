@@ -498,6 +498,8 @@ function wait_for_service_endpoints_ready {
 
   echo "Waiting for ${name} service endpoints to be ready"
   wait_specified_time_test "test \"\$(kubectl get endpoints -n ${namespace} ${name} | grep -c \":${port}\")\" -eq \"1\"" "5"
+  echo "Done waiting for ${name} service endpoints to be ready"
+  kubectl get endpoints -n ${namespace} ${name}
 }
 
 function k8s_apply_policy {
