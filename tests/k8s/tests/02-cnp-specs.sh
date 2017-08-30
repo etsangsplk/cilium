@@ -29,6 +29,8 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 source "${dir}/../cluster/env.bash"
 
+exit 0
+
 bookinfo_dir="${dir}/deployments/bookinfo"
 
 NAMESPACE="kube-system"

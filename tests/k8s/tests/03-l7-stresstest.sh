@@ -22,6 +22,8 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 source "${dir}/../cluster/env.bash"
 
+exit 0
+
 NAMESPACE="kube-system"
 TEST_NAME="03-l7-stresstest"
 LOGS_DIR="${dir}/cilium-files/${TEST_NAME}/logs"

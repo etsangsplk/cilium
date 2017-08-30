@@ -9,6 +9,8 @@ source "${dir}/../cluster/env.bash"
 
 set -ex
 
+exit 0 
+
 NAMESPACE="kube-system"
 GOPATH="/home/vagrant/go"
 DENIED="Result: DENIED"
