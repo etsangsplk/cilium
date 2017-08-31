@@ -209,6 +209,57 @@ function wait_for_cilium_ep_gen {
   set -x
 }
 
+function wait_for_cilium_ep_gen_k8s {
+  set +x
+  local NAMESPACE=$1
+  local POD=$2
+  local NUM_DESIRED="0"
+  local CMD="kubectl exec -n ${NAMESPACE} ${POD} -- cilium endpoint list | grep -c regenerating"
+  local INFO_CMD="true"
+  local MAX_MINS="2"
+  local ERROR_OUTPUT="Timeout while waiting for endpoints to regenerate"
+
+  # Track the amount of times the command has succeeded in a row. 
+  local check_cmd_iter=0
+  # Need to have a timeout that tracks total number of iterations so tests can exit.
+  local total_cmd_iter=0
+  local sleep_time=1
+
+  while [[ "$check_cmd_iter" -lt "10" ]]; do
+    if [[ "$total_cmd_iter" -gt $((${MAX_MINS}*60/$sleep_time)) ]]; then
+      echo ""
+      echo "$ERROR_OUTPUT"
+      exit 1
+    fi
+
+    local iter=0
+    local found=$(eval "$CMD")
+    echo "found: $found"
+
+    while [[ "$found" -ne "$NUM_DESIRED" ]]; do
+      echo "$found endpoints are still regenerating; want $NUM_DESIRED"
+      if [[ $((iter++)) -gt $((${MAX_MINS}*60/$sleep_time)) ]]; then
+        echo ""
+        echo $ERROR_OUTPUT
+        exit 1
+      else
+        echo "still within time limit for waiting for endpoints to be in 'ready' state; sleeping and checking again"
+        eval "$INFO_CMD"
+        echo -n " [$found/$NUM_DESIRED]"
+        # If command fails and iter is non-zero, reset iter back to zero.
+        check_cmd_iter=0
+        sleep $sleep_time
+      fi
+      found=$(eval "${CMD}")
+      echo "found: $found"
+    done
+    check_cmd_iter=$(expr $check_cmd_iter + 1)
+    total_cmd_iter=$(expr $total_cmd_iter + 1)
+    sleep .25
+  done
+  set -x
+}
+
 function wait_for_daemon_set_not_ready {
   set +x
 
@@ -500,6 +551,28 @@ function wait_for_service_endpoints_ready {
   wait_specified_time_test "test \"\$(kubectl get endpoints -n ${namespace} ${name} | grep -c \":${port}\")\" -eq \"1\"" "5"
   echo "Done waiting for ${name} service endpoints to be ready"
   kubectl get endpoints -n ${namespace} ${name}
+  set -x
+}
+
+function wait_for_service_ready_cilium_pod {
+  set -xv
+  check_num_params "$#" "4"
+  local namespace="${1}"
+  local pod="${2}"
+  local fe_port="${3}"
+  # TODO: only works for one backend right now.
+  local be_port="${4}"
+
+  echo "Waiting for Cilium pod ${pod} to have services ready with frontend port: ${fe_port} and backend port: ${be_port}"
+  
+  wait_specified_time_test "test \"\$(kubectl -n ${namespace} exec ${pod} -- cilium service list | awk '{ print \$2 }' | grep -c \":${fe_port}\")\" -eq \"1\"" "5"
+  wait_specified_time_test "test \"\$(kubectl -n ${namespace} exec ${pod} -- cilium service list | awk '{ print \$5 }' | grep -c \":${be_port}\")\" -eq \"1\"" "5"
+  
+  echo "Done waiting for Cilium pod ${pod} to have services ready with frontend port: ${fe_port} and backend port: ${be_port}"
+  
+  echo "Listing all services:"
+  kubectl -n ${namespace} exec ${pod} -- cilium service list
+  set -x
 }
 
 function k8s_apply_policy {
