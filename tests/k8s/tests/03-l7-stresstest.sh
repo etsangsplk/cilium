@@ -27,6 +27,7 @@ exit 0
 NAMESPACE="kube-system"
 TEST_NAME="03-l7-stresstest"
 LOGS_DIR="${dir}/cilium-files/${TEST_NAME}/logs"
+LOCAL_CILIUM_POD="$(kubectl get pods -n kube-system -o wide | grep $(hostname) | awk '{ print $1 }' | grep cilium)"
 
 function finish_test {
   gather_files ${TEST_NAME} k8s-tests
@@ -59,6 +60,9 @@ wait_for_running_pod frontend qa
 wait_for_running_pod backend development
 
 wait_for_service_endpoints_ready development backend 80
+wait_for_service_ready_cilium_pod ${NAMESPACE} ${LOCAL_CILIUM_POD} 80 80
+wait_for_cilium_ep_gen_k8s ${NAMESPACE} ${LOCAL_CILIUM_POD}
+
 # frontend doesn't have any endpoints
 
 kubectl get pods -n qa -o wide
