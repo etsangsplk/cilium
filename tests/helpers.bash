@@ -565,8 +565,8 @@ function wait_for_service_ready_cilium_pod {
 
   echo "Waiting for Cilium pod ${pod} to have services ready with frontend port: ${fe_port} and backend port: ${be_port}"
   
-  wait_specified_time_test "test \"\$(kubectl -n ${namespace} exec ${pod} -- cilium service list | awk '{ print \$2 }' | grep -c \":${fe_port}\")\" -eq \"1\"" "5"
-  wait_specified_time_test "test \"\$(kubectl -n ${namespace} exec ${pod} -- cilium service list | awk '{ print \$5 }' | grep -c \":${be_port}\")\" -eq \"1\"" "5"
+  wait_specified_time_test "test \"\$(kubectl -n ${namespace} exec ${pod} -- cilium service list | awk '{ print \$2 }' | grep -c \":${fe_port}\")\" -ge \"1\"" "5"
+  wait_specified_time_test "test \"\$(kubectl -n ${namespace} exec ${pod} -- cilium service list | awk '{ print \$5 }' | grep -c \":${be_port}\")\" -ge \"1\"" "5"
   
   echo "Done waiting for Cilium pod ${pod} to have services ready with frontend port: ${fe_port} and backend port: ${be_port}"
   
