@@ -321,11 +321,12 @@ function wait_for_docker_ipv6_addr {
 }
 
 function wait_for_running_pod {
-  set -x
+  set +x
   pod=$1
   namespace=${2:-default}
   echo "Waiting for ${pod} pod to be Running..."
   wait_specified_time_test "test \"\$(kubectl get pods -n ${namespace} -o wide | grep ${pod} | grep -c Running)\" -eq \"1\"" "5"
+  set -x
 }
 
 function wait_for_no_pods {
@@ -541,7 +542,7 @@ function wait_for_api_server_ready {
 }
 
 function wait_for_service_endpoints_ready {
-  set -x
+  set +x
   check_num_params "$#" "3"
   local namespace="${1}"
   local name="${2}"
@@ -555,7 +556,7 @@ function wait_for_service_endpoints_ready {
 }
 
 function wait_for_service_ready_cilium_pod {
-  set -xv
+  set +x
   check_num_params "$#" "4"
   local namespace="${1}"
   local pod="${2}"
@@ -811,21 +812,27 @@ function wait_for_desired_state {
 #   None
 #######################################
 function wait_specified_time_test {
-  set -x
+  set +x
   local CMD="$1"
   local MAX_MINS="$2"
 
   local sleep_time=1
   local iter=0
+  echo "waiting for up to $MAX_MINS for $CMD to succeed"
   while [[ "${iter}" -lt $((${MAX_MINS}*60/$sleep_time)) ]]; do
+    echo "${iter} < $((${MAX_MINS}*60/$sleep_time)) "
     if eval "${CMD}" ; then
+      echo "${CMD} succeeded"
       break
     fi
+    echo "${CMD} did not succeed; sleeping and testing the command again"
     sleep ${sleep_time}
     iter=$((iter+1))
   done
   if [[ "${iter}" -ge $((${MAX_MINS}*60/$sleep_time)) ]]; then
     echo "Timeout ${MAX_MINS} minutes exceeded for command \"$CMD\", Exiting with failure."
+    set -x
     exit 1
   fi
+  set -x
 }
