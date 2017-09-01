@@ -296,10 +296,11 @@ function wait_for_running_pod {
 }
 
 function wait_for_no_pods {
-  set -x
+  set +x
   namespace=${1:-default}
   echo "Waiting for no pods to be Running in namespace ${namespace}"
   wait_specified_time_test "test \"\$(kubectl get pods -n ${namespace} -o wide 2>&1 | grep -c 'No resources found')\" -eq \"1\"" "5"
+  set -x
 }
 
 function wait_for_n_running_pods {
