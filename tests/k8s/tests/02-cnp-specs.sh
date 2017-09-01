@@ -55,19 +55,19 @@ wait_for_running_pod productpage-v1
 
 wait_for_service_endpoints_ready default details 9080
 #wait_for_service_ready_cilium_pod ${NAMESPACE} ${LOCAL_CILIUM_POD} 9080 9080
-wait_for_cilium_ep_gen_k8s ${NAMESPACE} ${LOCAL_CILIUM_POD}
+wait_for_cilium_ep_gen k8s ${NAMESPACE} ${LOCAL_CILIUM_POD}
 
 wait_for_service_endpoints_ready default ratings 9080
 #wait_for_service_ready_cilium_pod ${NAMESPACE} ${LOCAL_CILIUM_POD} 9080 9080
-wait_for_cilium_ep_gen_k8s ${NAMESPACE} ${LOCAL_CILIUM_POD}
+wait_for_cilium_ep_gen k8s ${NAMESPACE} ${LOCAL_CILIUM_POD}
 
 wait_for_service_endpoints_ready default reviews 9080
 #wait_for_service_ready_cilium_pod ${NAMESPACE} ${LOCAL_CILIUM_POD} 9080 9080
-wait_for_cilium_ep_gen_k8s ${NAMESPACE} ${LOCAL_CILIUM_POD}
+wait_for_cilium_ep_gen k8s ${NAMESPACE} ${LOCAL_CILIUM_POD}
 
 wait_for_service_endpoints_ready default productpage 9080
 #wait_for_service_ready_cilium_pod ${NAMESPACE} ${LOCAL_CILIUM_POD} 9080 9080
-wait_for_cilium_ep_gen_k8s ${NAMESPACE} ${LOCAL_CILIUM_POD}
+wait_for_cilium_ep_gen k8s ${NAMESPACE} ${LOCAL_CILIUM_POD}
 
 
 # Every thing should be reachable since we are not enforcing any policies

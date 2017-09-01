@@ -164,8 +164,23 @@ function wait_for_kubectl_cilium_status {
 
 function wait_for_cilium_ep_gen {
   set +x
+  local MODE=$1
+
+  local NAMESPACE
+  local POD
+  local CMD
+
+  if [[ "$MODE" == "k8s" ]]; then
+    # Only care about provided params if mode is K8s.
+    check_num_params "$#" "3"
+    NAMESPACE=$2
+    POD=$3
+    CMD="kubectl exec -n ${NAMESPACE} ${POD} -- cilium endpoint list | grep -c regenerating"
+  else
+    CMD="cilium endpoint list | grep -c regenerating"
+  fi
+
   local NUM_DESIRED="0"
-  local CMD="cilium endpoint list | grep -c regenerating"
   local INFO_CMD="true"
   local MAX_MINS="2"
   local ERROR_OUTPUT="Timeout while waiting for endpoints to regenerate"
@@ -177,55 +192,6 @@ function wait_for_cilium_ep_gen {
   local sleep_time=1
  
   while [[ "$check_cmd_iter" -lt "10" ]]; do    
-    if [[ "$total_cmd_iter" -gt $((${MAX_MINS}*60/$sleep_time)) ]]; then
-      echo ""
-      echo "$ERROR_OUTPUT"
-      exit 1
-    fi
-
-    local iter=0
-    local found=$(eval "$CMD")
-    echo "found: $found"
-
-    while [[ "$found" -ne "$NUM_DESIRED" ]]; do
-      if [[ $((iter++)) -gt $((${MAX_MINS}*60/$sleep_time)) ]]; then
-        echo ""
-        echo $ERROR_OUTPUT
-        exit 1
-      else
-        eval "$INFO_CMD"
-        echo -n " [$found/$NUM_DESIRED]"
-        # If command fails and iter is non-zero, reset iter back to zero.
-        check_cmd_iter=0
-        sleep $sleep_time
-      fi
-      found=$(eval "${CMD}")
-      echo "found: $found"
-    done
-    check_cmd_iter=$(expr $check_cmd_iter + 1)
-    total_cmd_iter=$(expr $total_cmd_iter + 1)
-    sleep .25
-  done
-  set -x
-}
-
-function wait_for_cilium_ep_gen_k8s {
-  set +x
-  local NAMESPACE=$1
-  local POD=$2
-  local NUM_DESIRED="0"
-  local CMD="kubectl exec -n ${NAMESPACE} ${POD} -- cilium endpoint list | grep -c regenerating"
-  local INFO_CMD="true"
-  local MAX_MINS="2"
-  local ERROR_OUTPUT="Timeout while waiting for endpoints to regenerate"
-
-  # Track the amount of times the command has succeeded in a row. 
-  local check_cmd_iter=0
-  # Need to have a timeout that tracks total number of iterations so tests can exit.
-  local total_cmd_iter=0
-  local sleep_time=1
-
-  while [[ "$check_cmd_iter" -lt "10" ]]; do
     if [[ "$total_cmd_iter" -gt $((${MAX_MINS}*60/$sleep_time)) ]]; then
       echo ""
       echo "$ERROR_OUTPUT"

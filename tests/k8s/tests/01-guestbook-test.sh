@@ -98,7 +98,7 @@ wait_for_running_pod guestbook
 
 wait_for_service_endpoints_ready default guestbook 3000
 wait_for_service_ready_cilium_pod ${NAMESPACE} ${LOCAL_CILIUM_POD} 3000 3000
-wait_for_cilium_ep_gen_k8s ${NAMESPACE} ${LOCAL_CILIUM_POD}
+wait_for_cilium_ep_gen k8s ${NAMESPACE} ${LOCAL_CILIUM_POD}
 
 set +e
 

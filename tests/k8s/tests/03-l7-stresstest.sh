@@ -59,7 +59,7 @@ wait_for_running_pod backend development
 
 wait_for_service_endpoints_ready development backend 80
 wait_for_service_ready_cilium_pod ${NAMESPACE} ${LOCAL_CILIUM_POD} 80 80
-wait_for_cilium_ep_gen_k8s ${NAMESPACE} ${LOCAL_CILIUM_POD}
+wait_for_cilium_ep_gen k8s ${NAMESPACE} ${LOCAL_CILIUM_POD}
 
 # frontend doesn't have any endpoints
 
