@@ -11,10 +11,14 @@ CLIENT_LABEL="client"
 CONTAINER=monitor_tests
 
 function cleanup {
-  gather_files 13-monitoring-filtering ${TEST_SUITE}
   docker rm -f $CONTAINER 2> /dev/null || true
   docker network rm $NETWORK > /dev/null 2>&1
   monitor_stop
+}
+
+function finish_test {
+  gather_files 13-monitoring-filtering ${TEST_SUITE}
+  cleanup
 }
 
 function spin_up_container {
@@ -110,7 +114,7 @@ function test_related_to {
   fi
 }
 
-trap cleanup EXIT
+trap finish_test EXIT
 
 test_event_types
 test_from

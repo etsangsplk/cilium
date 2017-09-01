@@ -7,9 +7,13 @@ set -e
 TEST_NET="cilium"
 
 function cleanup {
-  gather_files 01-ct ${TEST_SUITE}
   docker rm -f server client httpd1 httpd2 curl curl2 2> /dev/null || true
   monitor_stop
+}
+
+function finish_test {
+  gather_files 01-ct ${TEST_SUITE}
+  cleanup 
 }
 
 function start_containers {
@@ -51,7 +55,7 @@ function get_container_metadata {
   set -x
 } 
 
-trap cleanup EXIT
+trap finish_test EXIT
 
 cleanup
 monitor_start
