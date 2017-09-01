@@ -20,7 +20,7 @@ cleanup
 logs_clear
 
 docker network inspect $TEST_NET 2> /dev/null || {
-	docker network create --ipv6 --subnet ::1/112 --ipam-driver cilium --driver cilium $TEST_NET
+  docker network create --ipv6 --subnet ::1/112 --ipam-driver cilium --driver cilium $TEST_NET
 }
 
 docker run -dt --net=$TEST_NET --name a -l id.a tgraf/netperf

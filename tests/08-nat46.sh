@@ -28,7 +28,7 @@ monitor_start
 logs_clear
 
 docker network inspect $TEST_NET 2> /dev/null || {
-        docker network create --ipv6 --subnet ::1/112 --ipam-driver cilium --driver cilium $TEST_NET
+  docker network create --ipv6 --subnet ::1/112 --ipam-driver cilium --driver cilium $TEST_NET
 }
 
 docker run -d -i --net=$TEST_NET --name server -l $SERVER_LABEL $NETPERF_IMAGE
@@ -68,11 +68,11 @@ cilium endpoint config ${CLIENT_ID} NAT46=true
 cilium endpoint config ${SERVER_ID} NAT46=true
 
 function connectivity_test64() {
-        # ICMPv4 echo request from client to server should succeed
-        monitor_clear
-        docker exec -i client ping6 -c 10 ::FFFF:$SERVER_IP4 || {
-                abort "Error: Could not ping nat64 address of client from host"
-        }
+  # ICMPv4 echo request from client to server should succeed
+  monitor_clear
+  docker exec -i client ping6 -c 10 ::FFFF:$SERVER_IP4 || {
+    abort "Error: Could not ping nat64 address of client from host"
+  }
 }
 
 connectivity_test64
